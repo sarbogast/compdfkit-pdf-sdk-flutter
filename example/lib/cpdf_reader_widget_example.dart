@@ -5,6 +5,8 @@
 // UNAUTHORIZED REPRODUCTION OR DISTRIBUTION IS SUBJECT TO CIVIL AND CRIMINAL PENALTIES.
 // This notice may not be removed from this file.
 
+import 'dart:io';
+
 import 'package:compdfkit_flutter/configuration/cpdf_configuration.dart';
 import 'package:compdfkit_flutter/configuration/cpdf_options.dart';
 import 'package:compdfkit_flutter/widgets/cpdf_reader_widget.dart';
@@ -31,18 +33,33 @@ class _CPDFReaderWidgetExampleState extends State<CPDFReaderWidgetExample> {
         appBar: AppBar(
           title: const Text('CPDFReaderWidget Example'),
           leading: IconButton(
-              onPressed: () {
-                _save();
-                Navigator.pop(context);
+            onPressed: () {
+              _save();
+              Navigator.pop(context);
+            },
+            icon: const Icon(Icons.arrow_back),
+          ),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.announcement),
+              onPressed: () async {
+                final document = _controller.document;
+                final annotationsFile = await document.exportAnnotations();
+                final annotations = await File(annotationsFile).readAsString();
+                debugPrint('Annotations: $annotations');
               },
-              icon: const Icon(Icons.arrow_back)),
+            ),
+          ],
         ),
         body: CPDFReaderWidget(
           document: widget.documentPath,
           configuration: CPDFConfiguration(
             toolbarConfig: const CPDFToolbarConfig(
-                iosLeftBarAvailableActions: [CPDFToolbarAction.thumbnail],
-            )
+              iosLeftBarAvailableActions: [CPDFToolbarAction.thumbnail],
+            ),
+            annotationsConfig: const CPDFAnnotationsConfig(
+              annotationAuthor: "user123",
+            ),
           ),
           onCreated: (controller) {
             setState(() {
